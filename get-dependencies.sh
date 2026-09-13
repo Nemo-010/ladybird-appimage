@@ -63,7 +63,6 @@ export RUSTUP_TOOLCHAIN=stable
 # - gcc-wno-restrict: GCC emits -Wrestrict warnings which break the build because of -Werror
 # Needed for the AppImage:
 # - sandbox-allow-time: allow the time() syscall in the seccomp sandbox
-# - allow-readv-writev-in-seccomp-sandbox: curl/OpenSSL use readv() for TLS data (https://github.com/NixOS/nixpkgs/pull/539002)
 # - ca-certificates: allow reading CA bundles in the sandbox and support SSL_CERT_FILE
 for patch in ../patches/*.patch; do
 	patch -N -p1 --forward -i "$patch"
@@ -86,3 +85,14 @@ cmake \
 
 cmake --build ./Build/release
 cmake --install ./Build/release
+
+# cmake --install only installs Ladybird's own targets. The vcpkg dependencies
+# are built as shared libraries (LADYBIRD_VCPKG_TYPE=release) and only exist in
+# the build tree, so copy them into the install prefix for quick-sharun.
+for vcpkg_libdir in ./Build/release/vcpkg_installed/*/lib; do
+	[ -d "$vcpkg_libdir" ] || continue
+	for vcpkg_lib in "$vcpkg_libdir"/*.so*; do
+		[ -e "$vcpkg_lib" ] || continue
+		cp -a "$vcpkg_lib" /opt/ladybird/usr/lib/
+	done
+done

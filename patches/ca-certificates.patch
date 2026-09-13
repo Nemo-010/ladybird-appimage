@@ -1,6 +1,8 @@
+diff --git a/Services/RequestServer/SandboxLinux.cpp b/Services/RequestServer/SandboxLinux.cpp
+index 7c5fe45..f3df120 100644
 --- a/Services/RequestServer/SandboxLinux.cpp
 +++ b/Services/RequestServer/SandboxLinux.cpp
-@@ -22,6 +22,11 @@
+@@ -23,6 +23,11 @@ ErrorOr<void> apply_sandbox(Vector<ByteString> const& certificates, StringView c
      TRY(Core::Directory::create(cache_path, Core::Directory::CreateDirectories::Yes));
  
      TRY(Sandbox::add_landlock_path_if_exists(paths, "/etc/ssl"sv, Sandbox::LandlockPath::Access::ReadOnly));
@@ -12,17 +14,19 @@
      TRY(Sandbox::add_landlock_path_if_exists(paths, "/etc/host.conf"sv, Sandbox::LandlockPath::Access::ReadOnly));
      TRY(Sandbox::add_landlock_path_if_exists(paths, "/etc/hosts"sv, Sandbox::LandlockPath::Access::ReadOnly));
      TRY(Sandbox::add_landlock_path_if_exists(paths, "/etc/nsswitch.conf"sv, Sandbox::LandlockPath::Access::ReadOnly));
+diff --git a/Services/RequestServer/main.cpp b/Services/RequestServer/main.cpp
+index 7b11d8d..753bb65 100644
 --- a/Services/RequestServer/main.cpp
 +++ b/Services/RequestServer/main.cpp
-@@ -10,6 +10,7 @@
- #include <AK/StringView.h>
+@@ -11,6 +11,7 @@
  #include <AK/Vector.h>
  #include <LibCore/ArgsParser.h>
+ #include <LibCore/CrashHandler.h>
 +#include <LibCore/Environment.h>
  #include <LibCore/EventLoop.h>
  #include <LibCore/Process.h>
  #include <LibCore/System.h>
-@@ -62,6 +63,16 @@
+@@ -71,6 +72,16 @@ ErrorOr<int> ladybird_main(Main::Arguments arguments)
          Core::Process::wait_for_debugger_and_break();
  
      // FIXME: Update RequestServer to support multiple custom root certificates.
@@ -38,3 +42,4 @@
 +
      if (!certificates.is_empty())
          RequestServer::set_default_certificate_path(certificates.first());
+ 
