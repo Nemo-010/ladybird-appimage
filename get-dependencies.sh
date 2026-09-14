@@ -69,12 +69,18 @@ for patch in ../patches/*.patch; do
 done
 
 # The Release preset builds shared libraries (lagom + vcpkg deps), which keeps the
-# binaries small and avoids symbol collisions with the bundled Qt
+# binaries small and avoids symbol collisions with the bundled Qt.
+# ENABLE_CI_BASELINE_CPU makes Ladybird target x86-64-v3 instead of
+# -march=native. Without it the build bakes in whatever the CI runner supports
+# (AVX-512), and the AppImage dies with SIGILL on CPUs that lack it. This is
+# the same option the Ladybird Flatpak sets. make-appimage.sh deploys the
+# x86-64-v3-check hook so users on older CPUs get a clear warning.
 cmake \
 	--preset Release \
 	-B ./Build/release \
 	-S ./ \
 	-DCMAKE_BUILD_TYPE=Release \
+	-DENABLE_CI_BASELINE_CPU=ON \
 	-DENABLE_LTO_FOR_RELEASE=OFF \
 	-DENABLE_INSTALL_HEADERS=OFF \
 	-DCMAKE_INSTALL_PREFIX='/opt/ladybird/usr' \
