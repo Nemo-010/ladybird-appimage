@@ -8,13 +8,29 @@ echo "Installing package dependencies..."
 echo "---------------------------------------------------------------"
 pacman -Syu --noconfirm \
 	autoconf-archive \
+	brotli           \
 	cmake            \
+	cpptrace         \
+	curl             \
+	dbus             \
+	fast_float       \
+	fmt              \
+	libdwarf         \
+	libedit          \
+	libpsl           \
+	libtommath       \
 	nasm             \
 	ninja            \
+	openssl          \
 	python           \
 	qt6-positioning  \
 	rust             \
+	sdl3             \
+	simdjson         \
+	simdutf          \
+	sqlite           \
 	tar              \
+	woff2            \
 	zip
 
 if [ "$ARCH" = 'x86_64' ]; then
@@ -43,13 +59,24 @@ echo "$VERSION" > ~/version
 git clone https://github.com/microsoft/vcpkg.git ./vcpkg
 git -C ./vcpkg checkout "$(awk -F'"' '/"builtin-baseline"/{print $4; exit}' vcpkg.json)"
 
-# Drop angle from the vcpkg manifest so the system package is used instead
+# Let vcpkg build only what the system does not provide: skia, wuffs, mimalloc,
+# the ladybird ffmpeg and the pdfjs assets. Anything else comes from pacman.
 python3 - <<'EOF'
 import json
+
+system_deps = {
+    'angle', 'brotli', 'cpptrace', 'curl', 'dbus', 'fast-float', 'fmt',
+    'libdwarf', 'libedit', 'libproxy', 'libpsl', 'libtommath', 'openssl',
+    'sdl3', 'simdjson', 'simdutf', 'sqlite3', 'woff2',
+}
+
 with open('vcpkg.json') as f:
     data = json.load(f)
-data['dependencies'] = [d for d in data['dependencies'] if not (isinstance(d, dict) and d.get('name') == 'angle')]
-data['overrides'] = [d for d in data['overrides'] if d.get('name') != 'angle']
+
+data['dependencies'] = [d for d in data['dependencies']
+                        if (d if isinstance(d, str) else d['name']) not in system_deps]
+data['overrides'] = [o for o in data['overrides'] if o['name'] not in system_deps]
+
 with open('vcpkg.json', 'w') as f:
     json.dump(data, f, indent=2)
 EOF
