@@ -5,6 +5,10 @@ set -eu
 ARCH=$(uname -m)
 export ARCH
 export OUTPATH=./dist
+# The distro SDL3 that quick-sharun deploys starts a libusb thread, so the
+# renderer sandbox aborts before it can apply Landlock. The SDL3 Ladybird was
+# built against needs no libusb and is already deployed with the other deps.
+export DEPLOY_SDL=0
 export ADD_HOOKS="self-updater.bg.hook:x86-64-v3-check.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
 export ICON=https://raw.githubusercontent.com/LadybirdBrowser/ladybird/refs/heads/master/Base/res/icons/128x128/app-browser.png
