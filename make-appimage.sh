@@ -5,9 +5,6 @@ set -eu
 ARCH=$(uname -m)
 export ARCH
 export OUTPATH=./dist
-# SDL3 comes from the system. quick-sharun's SDL deployment would also drag in
-# libusb, udev and libdecor, which nothing here needs.
-export DEPLOY_SDL=0
 export ADD_HOOKS="self-updater.bg.hook:x86-64-v3-check.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
 export ICON=https://raw.githubusercontent.com/LadybirdBrowser/ladybird/refs/heads/master/Base/res/icons/128x128/app-browser.png
