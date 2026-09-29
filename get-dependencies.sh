@@ -25,7 +25,6 @@ pacman -Syu --noconfirm \
 	python           \
 	qt6-positioning  \
 	rust             \
-	sdl3             \
 	simdjson         \
 	simdutf          \
 	sqlite           \
@@ -59,15 +58,16 @@ echo "$VERSION" > ~/version
 git clone https://github.com/microsoft/vcpkg.git ./vcpkg
 git -C ./vcpkg checkout "$(awk -F'"' '/"builtin-baseline"/{print $4; exit}' vcpkg.json)"
 
-# Let vcpkg build only what the system does not provide: skia, wuffs, mimalloc,
-# the ladybird ffmpeg and the pdfjs assets. Anything else comes from pacman.
+# Let vcpkg build only what the system cannot provide: skia, wuffs, mimalloc,
+# the ladybird ffmpeg, the pdfjs assets and SDL3, whose Arch build loads libusb
+# and therefore makes the renderer sandbox abort. Everything else is pacman's.
 python3 - <<'EOF'
 import json
 
 system_deps = {
     'angle', 'brotli', 'cpptrace', 'curl', 'dbus', 'fast-float', 'fmt',
     'libdwarf', 'libedit', 'libproxy', 'libpsl', 'libtommath', 'openssl',
-    'sdl3', 'simdjson', 'simdutf', 'sqlite3', 'woff2',
+    'simdjson', 'simdutf', 'sqlite3', 'woff2',
 }
 
 with open('vcpkg.json') as f:
