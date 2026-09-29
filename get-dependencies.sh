@@ -68,8 +68,8 @@ for patch in ../patches/*.patch; do
 	patch -N -p1 --forward -i "$patch"
 done
 
-# The Release preset builds shared libraries (lagom + vcpkg deps), which keeps the
-# binaries small and avoids symbol collisions with the bundled Qt.
+# Ladybird's own libraries stay shared, but the vcpkg dependencies are linked
+# statically so the AppImage ships no copies of libraries the host provides.
 # ENABLE_CI_BASELINE_CPU makes Ladybird target x86-64-v3 instead of
 # -march=native. Without it the build bakes in whatever the CI runner supports
 # (AVX-512), and the AppImage dies with SIGILL on CPUs that lack it. This is
@@ -85,20 +85,10 @@ cmake \
 	-DENABLE_INSTALL_HEADERS=OFF \
 	-DCMAKE_INSTALL_PREFIX='/opt/ladybird/usr' \
 	-DCMAKE_INSTALL_LIBEXECDIR='lib/ladybird' \
+	-DLADYBIRD_VCPKG_TYPE=distribution \
 	-DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
 	-DVCPKG_ROOT="$VCPKG_ROOT" \
 	-Wno-dev
 
 cmake --build ./Build/release
 cmake --install ./Build/release
-
-# cmake --install only installs Ladybird's own targets. The vcpkg dependencies
-# are built as shared libraries (LADYBIRD_VCPKG_TYPE=release) and only exist in
-# the build tree, so copy them into the install prefix for quick-sharun.
-for vcpkg_libdir in ./Build/release/vcpkg_installed/*/lib; do
-	[ -d "$vcpkg_libdir" ] || continue
-	for vcpkg_lib in "$vcpkg_libdir"/*.so*; do
-		[ -e "$vcpkg_lib" ] || continue
-		cp -a "$vcpkg_lib" /opt/ladybird/usr/lib/
-	done
-done
