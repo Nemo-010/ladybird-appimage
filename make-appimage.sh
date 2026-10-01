@@ -22,13 +22,6 @@ unset LD_LIBRARY_PATH
 # otherwise the GLES symbols collide. Move them to the top of AppDir/lib.
 mv -v ./AppDir/lib/angle/usr/lib/* ./AppDir/lib
 
-# fontconfig builds its cache in XDG_CACHE_HOME the first time it runs, and the
-# renderer is sandboxed before that happens. Create the directory here so it never
-# has to, and AppRun sources this before starting Ladybird.
-cat > ./AppDir/bin/10-fontconfig-cache.hook <<-'EOF'
-	mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/fontconfig"
-EOF
-
 # Turn AppDir into AppImage
 quick-sharun --make-appimage
 
