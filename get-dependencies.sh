@@ -89,8 +89,9 @@ export RUSTUP_TOOLCHAIN=stable
 # From the AUR 'ladybird' package:
 # - gcc-wno-restrict: GCC emits -Wrestrict warnings which break the build because of -Werror
 # Needed for the AppImage:
-# - sandbox-allow-time: allow the time() syscall in the seccomp sandbox
-# - ca-certificates: allow reading CA bundles in the sandbox and support SSL_CERT_FILE
+# - compositor/renderer-allow-host-fonts-drm: allow the host's fontconfig configuration,
+#   the DRM device database and a fontconfig cache directory
+# - sandbox-allow-time, sandbox-allow-inotify: syscalls the sandbox refuses otherwise
 for patch in ../patches/*.patch; do
 	patch -N -p1 --forward -i "$patch"
 done
