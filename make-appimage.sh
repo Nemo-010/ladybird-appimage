@@ -28,4 +28,13 @@ quick-sharun --make-appimage
 # Test the app for 12 seconds, if the test fails due to the app
 # having issues running in the CI use --simple-test instead
 pacman -S --noconfirm vulkan-swrast # app now needs a vulkan device to launch
+
+# TEMPORARY diagnostic
+set +e
+timeout 15 xvfb-run -a ./dist/*.AppImage > ./app-run.log 2>&1
+echo "== app exit=$? =="
+cat ./app-run.log
+ls -la ~/.local/share/Ladybird* ~/.config/Ladybird* /tmp/.X*-lock 2>&1
+set -e
+
 quick-sharun --test ./dist/*.AppImage
