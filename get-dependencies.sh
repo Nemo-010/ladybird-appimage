@@ -24,7 +24,7 @@ pacman -Syu --noconfirm \
 	openssl          \
 	python           \
 	qt6-positioning  \
-	rust             \
+	rustup           \
 	sdl3             \
 	simdjson         \
 	simdutf          \
@@ -50,6 +50,10 @@ echo "Building Ladybird..."
 echo "---------------------------------------------------------------"
 git clone https://github.com/LadybirdBrowser/ladybird ./ladybird
 cd ./ladybird
+
+# Build with the toolchain pinned in rust-toolchain.toml: Arch's rustc is newer
+# than the pin, and a new deprecation is an error because Rust builds with -Dwarnings
+rustup toolchain install "$(awk -F'"' '/^channel/{print $2}' rust-toolchain.toml)"
 
 VERSION=r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)
 echo "$VERSION" > ~/version
@@ -83,7 +87,6 @@ EOF
 
 export VCPKG_ROOT="$PWD/vcpkg"
 export VCPKG_DISABLE_METRICS="true"
-export RUSTUP_TOOLCHAIN=stable
 
 # Apply required patches:
 # From the AUR 'ladybird' package:
