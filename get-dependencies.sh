@@ -30,6 +30,7 @@ pacman -Syu --noconfirm \
 	simdutf          \
 	sqlite           \
 	tar              \
+	vulkan-headers   \
 	woff2            \
 	zip
 
